@@ -1,0 +1,23 @@
+spam_ham_classifier <- function(data) {
+  library(e1071)
+  library(tm)
+
+  corpus <- Corpus(VectorSource(data$text))
+  corpus <- tm_map(corpus, content_transformer(tolower))
+  corpus <- tm_map(corpus, removePunctuation)
+  corpus <- tm_map(corpus, removeNumbers)
+  corpus <- tm_map(corpus, removeWords, stopwords("en"))
+  dtm <- DocumentTermMatrix(corpus)
+
+  dtm <- removeSparseTerms(dtm, 0.99)
+  train_data <- as.data.frame(as.matrix(dtm))
+  train_data$label <- data$label
+
+  model <- naiveBayes(label ~ ., data = train_data)
+
+  predict_classifier <- function(new_text) {
+    new_dtm <- DocumentTermMatrix(Corpus(VectorSource(new_text)), control = list(dictionary = Terms(dtm)))
+    new_data <- as.data.frame(as.matrix(new_dtm))
+    return(predict(model, new_data))
+  }
+}
