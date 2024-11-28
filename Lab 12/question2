@@ -1,0 +1,3 @@
+even_sum <- function(numbers) {
+  return(sum(numbers[numbers %% 2 == 0]))
+}
